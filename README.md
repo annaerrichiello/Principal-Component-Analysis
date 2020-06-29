@@ -26,19 +26,45 @@ The Principal Component Analysis is one of the unsupervised learning methods and
 My goal here is to find a low-dimension representation of the dataset by defining the principal components.
 First of all, I imported the dataset, renamed all the columns and chose not to consider the first column of the dataset in order to make it easier to do the whole analysis. 
 These are the first fifteen rows as example:
+
 ![](images/Immagine1.jpg)
 
 Then my analysis starts with the definition of the number of rows and columns, since they are useful for the next steps. In this case the number of rows is 51 and the number of column is 7.
-Two other elements needed are the mean and the standard deviation for each variable reported in the dataset. I built a table to summarize the means and the standard deviations, the output is the following:
- |   mean | std
- |--------|------   
-a|  15.79 |  4.12
-b|  31.73 |  9.63
-c|  30.69 |  5.13
-d|  85.92 | 15.16
-e|  88.73 |  6.96
-f| 886.96 |178.30
-g| 134.49  24.84
+Two other elements needed are the mean and the standard deviation for each variable reported in the dataset. I built a table to summarize the means and the standard deviations; the output is the following:
+| |   mean | std  |
+|-|--------|------|   
+|a|  15.79 |  4.12|
+|b|  31.73 |  9.63|
+|c|  30.69 |  5.13|
+|d|  85.92 | 15.16|
+|e|  88.73 |  6.96|
+|f| 886.96 |178.30|
+|g| 134.49 | 24.84|
+
+Based on this, I decided to run the analysis by starting from the correlation matrix (the alternative is the covariance matrix) that is the following:
+
+| |      a|      b|      c|      d|      e|      f|      g|
+|-|-------|-------|-------|-------|-------|-------|-------|
+|a|  1.000| -0.029|  0.199|  0.010| -0.018| -0.200| -0.036|
+|b| -0.029|  1.000|  0.286|  0.132|  0.014|  0.043| -0.061|
+|c|  0.199|  0.286|  1.000|  0.043| -0.245| -0.017| -0.084|
+|d|  0.010|  0.132|  0.043|  1.000| -0.195|  0.020| -0.058|
+|e| -0.018|  0.014| -0.245| -0.195|  1.000|  0.076|  0.043|
+|f| -0.200|  0.043| -0.017|  0.020|  0.076|  1.000|  0.623|
+|g| -0.036| -0.061| -0.084| -0.058|  0.043|  0.623|  1.000|
+
+The absolute values are between 0 and 1 and it is possible to get the following information:
+-if the correlation is equal to 1 then the relationship is linear
+-in case the value is close to 0, it is non-linear
+-if both values tend to increase or decrease together the coefficient is positive, and the line that represents the correlation slopes upward, otherwise the coefficient is negative.
+In this case, most of the values have non-linear relationship. 
+
+Then, there is a very important step: the definition of the eigenvalues and eigenvectors.
+The  eigenvalues and eigenvectors of a correlation (or covariance) matrix represent the "core" of a PCA: the eigenvectors (principal components) represent the directions of the new feature space, whereas the eigenvalues determine their magnitude and, consequently explain the variance of the data along the new feature axes. 
+The R function 'eigen()' outputs the eigenvalues and eigenvectors:
+
+![](images/eigen.jpg)
+
 ### principal component analysis ###
 bad_drivers <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/bad-drivers/bad-drivers.csv", sep = ",")
 head(bad_drivers)
