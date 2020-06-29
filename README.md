@@ -1,10 +1,11 @@
 ---
 output:
+  word_document: default
   pdf_document: default
   html_document: default
 ---
-## Principal Components Analysis
-#Abstract
+# Principal Components Analysis
+## Abstract
 This contribution develops an analysis on the dataset 'bad-drivers.csv' (taken from github.com/fivethirtyeight/data) by running the Principal Components Analysis. In particular, the study is focused on the different steps in the computation of the principal componets.  
 1.How to choose Principal Components
 2.Proportion Variance Explained
@@ -21,15 +22,15 @@ I chose the dataset 'bad-drivers.csv' (taken from github.com/fivethirtyeight/dat
 .	Losses incurred by insurance companies for collisions per insured driver.
 I chose to compute the predictions on the variable 'Losses incurred by insurance companies for collisions per insured driver' (variable y).
 
-##Analysis
+## Analysis
 The Principal Component Analysis is one of the unsupervised learning methods and, as all unsupervised methods, it is much more challenging than supervised learning: in fact, it is often performed as an exploratory data analysis, whose goal is to check if there exist a possible dimension of the dataset in which I can study my data and see the relation between the variables.
 My goal here is to find a low-dimension representation of the dataset by defining the principal components.
 First of all, I imported the dataset, renamed all the columns and chose not to consider the first column of the dataset in order to make it easier to do the whole analysis. 
 These are the first fifteen rows as example:
 
-![](images/Immagine1.jpg)
+![](images/Immagine1.png)
 
-Then my analysis starts with the definition of the number of rows and columns, since they are useful for the next steps. In this case the number of rows is 51 and the number of column is 7.
+Then my analysis starts with the definition of the number of rows and columns, since they are useful for the next steps. In this case the number of rows (n) is 51 and the number of column (p) is 7.
 Two other elements needed are the mean and the standard deviation for each variable reported in the dataset. I built a table to summarize the means and the standard deviations; the output is the following:
 | |   mean | std  |
 |-|--------|------|   
@@ -59,18 +60,90 @@ The absolute values are between 0 and 1 and it is possible to get the following 
 -if both values tend to increase or decrease together the coefficient is positive, and the line that represents the correlation slopes upward, otherwise the coefficient is negative.
 In this case, most of the values have non-linear relationship. 
 
-Then, there is a very important step: the definition of the eigenvalues and eigenvectors.
+Then, there is a very important step: the choice of the principal components.
+It canbe done in different ways, the first is the definition of the eigenvalues and eigenvectors.
 The  eigenvalues and eigenvectors of a correlation (or covariance) matrix represent the "core" of a PCA: the eigenvectors (principal components) represent the directions of the new feature space, whereas the eigenvalues determine their magnitude and, consequently explain the variance of the data along the new feature axes. 
 The R function 'eigen()' outputs the eigenvalues and eigenvectors:
 
-![](images/eigen.jpg)
+![](images/eigen.png)
 
+The eigenvector with the highest eigenvalues is then considered as principal components in most cases.In this case, the first four components are able to axplain at least one variable by themselves.
+However it is possible to base the choice of the principal components on the proportion of variance explained, which indicates how much of the variance in the data is not contained in the first few principal components. The total variance present in a dataset is defined as:
+
+![](images/totvar.png)
+
+and the variance explained by m-th principal component by:
+
+![](images/pve.png).
+
+Then, the PVE of the m-th component is given by:
+
+![](images/pve2.png).
+
+Therefore I computed the PVE, by considering that it is equal to the ratio between the eigenvalues and the number of columns, and the cumulative variance explained.The following table shows the eigenvalues, the pve and the cumulative pve:
+
+|    | eigenvelues| % variance| % cum variance|
+|----|------------|-----------|---------------|
+|[1,]|        1.73|      24.77|          24.77|
+|[2,]|        1.41|      20.21|          44.98|
+|[3,]|        1.07|      15.31|          60.29|
+|[4,]|        1.04|      14.82|          75.11|
+|[5,]|        0.87|      12.38|          87.49|
+|[6,]|        0.54|       7.76|          95.25|
+|[7,]|        0.33|       4.75|         100.00|
+
+The cumulative proportion of explained variance is represented by the following graph:
+
+![](images/Rplot01.png)
+
+At this stage, it is possible to visually define the principal components by using the Scree Plot.
+In fact, I chose the components located above the red line in the following diagram, where the components are on x and the eigenvalues on y, that indicates values greater than 1:
+
+![](images/Rplot.png)
+
+Based on this, I chose the first four components, confirming the counclusions done on the output of the 'eigen()' function.
+I built the matrix of the four components, obtained by multiplying the eigenvector by the root of the respective eigenvalue.
+
+| |    Comp1|    Comp2|    Comp3|    Comp4|
+|-|---------|---------|---------|---------|
+|a| -0.36802|  0.06011| -0.64651| -0.63619|
+|b| -0.18950|  0.55585| -0.08053| -0.07924|
+|c| -0.40110|  0.64062| -0.37847| -0.37242|
+|d| -0.18909|  0.43225|  0.59378|  0.58431|
+|e|  0.31822| -0.45291| -0.33426| -0.32892|
+|f|  0.79867|  0.43619| -0.04001| -0.03937|
+|g|  0.79160|  0.33085| -0.19504| -0.19192|
+
+This table shows the correlations of the original variables with each of the four components. For example the variables 'f' and 'g' have a high correlation with the first component (79%), 'b' and 'c' have a relatively high correlation with the second one (respectively 55% and 64%).
+Another element that can be considered is the communality that tells how is the part of variance explained for each variable after the reduction.
+Using four components, I get the following results:
+
+| |    Comp1|    Comp2|    Comp3|    Comp4| communality|
+|-|---------|---------|---------|---------|------------|
+|a| -0.36802|  0.06011| -0.64651| -0.63619|   0.9617648|
+|b| -0.18950|  0.55585| -0.08053| -0.07924|   0.3576435|
+|c| -0.40110|  0.64062| -0.37847| -0.37242|   0.8532114|
+|d| -0.18909|  0.43225|  0.59378|  0.58431|   0.9165880|
+|e|  0.31822| -0.45291| -0.33426| -0.32892|   0.5263096|
+|f|  0.79867|  0.43619| -0.04001| -0.03937|   0.8312863|
+|g|  0.79160|  0.33085| -0.19504| -0.19192|   0.8109662|
+
+In other words, I get:
+-96% of the variance of 'a'(Number of drivers involved in fatal collisions per billion miles) explained,
+-35% of the variance of 'b' (Percentage of drivers involved in fatal collisions who were speeding) explained,
+-85% of the variance of 'c' (Percentage of drivers involved in fatal collisions who were alcohol impaired) explained,
+-91% of the variance of 'd' (Percentage of drivers involved in fatal collisions who were not distracted) explained,
+-52% of the variance of 'e' (Percentage of drivers involved in fatal collisions who had not been involved in any previous accidents) explained,
+-83% of the variance of 'f' (Car insurance premiums) explained,
+-81% of the variance of 'g' (	Losses incurred by insurance companies for collisions per insured driver) explained.
+
+
+```
 ### principal component analysis ###
 bad_drivers <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/bad-drivers/bad-drivers.csv", sep = ",")
 head(bad_drivers)
 dir.create("data")
 save(bad_drivers, file=file.path("data","bad_drivers.rda"))
-
 a <- bad_drivers$Number.of.drivers.involved.in.fatal.collisions.per.billion.miles
 b <- bad_drivers$Percentage.Of.Drivers.Involved.In.Fatal.Collisions.Who.Were.Speeding
 c <- bad_drivers$Percentage.Of.Drivers.Involved.In.Fatal.Collisions.Who.Were.Alcohol.Impaired
@@ -101,25 +174,22 @@ round(corr,3)
 eigen(corr)
 eigenvalues <- eigen(corr)$values
 eigenvectors <- eigen(corr)$vectors
+eigenvalues
+eigenvectors
 
-# Dall’analisi degli autovalori, le uniche componenti principali di rilevanza 
-#sono la prima e la seconda (le altre, infatti, hanno autovalori, quindi varianza,
-#minori di 1). Vediamo cosa accade se si sceglie il numero di componenti principali 
-#sulla base della percentuale di
-# varianza spiegata:
-pvarsp = eigenvalues/p
-pvarspcum = cumsum(pvarsp)
-tab <- round(cbind(eigenvalues,pvarsp*100,pvarspcum*100),2)
+#proportion of variance explained
+pve = eigenvalues/p
+pvecum = cumsum(pve)
+tab <- round(cbind(eigenvalues,pve*100,pvecum*100),2)
 colnames(tab)<-c("eigenvelues", "% variance","% cum variance")
 tab
-
+plot(pvecum, xlab="Principal Component", ylab="Proportion of Variance Explained", ylim=c(0,1),type='b')
 
 # Use Scree Diagram to select the components:
 plot(eigenvalues, type="b", main="Scree Diagram", xlab="Number of Component", ylab="Eigenvalues")
 abline(h=1, lwd=3, col="red")
 
-### We select 4 components 
-# Interpret the principal components selected by their coefficient vectors:
+#Select 4 components 
 eigen(corr)$vectors[,1:4]
 
 
@@ -152,6 +222,4 @@ abline(v=0,h=0,col="red")
 plot(comp[,1:4], main="Loadings plot", xlim=range(-1,1))
 text(comp, rownames(comp))
 abline(v=0,h=0,col="red")
-
-
-
+```

@@ -35,24 +35,20 @@ eigenvalues <- eigen(corr)$values
 eigenvectors <- eigen(corr)$vectors
 eigenvalues
 eigenvectors
-# Dall’analisi degli autovalori, le uniche componenti principali di rilevanza 
-#sono la prima e la seconda (le altre, infatti, hanno autovalori, quindi varianza,
-#minori di 1). Vediamo cosa accade se si sceglie il numero di componenti principali 
-#sulla base della percentuale di
-# varianza spiegata:
-pvarsp = eigenvalues/p
-pvarspcum = cumsum(pvarsp)
-tab <- round(cbind(eigenvalues,pvarsp*100,pvarspcum*100),2)
+
+#proportion of variance explained
+pve = eigenvalues/p
+pvecum = cumsum(pve)
+tab <- round(cbind(eigenvalues,pve*100,pvecum*100),2)
 colnames(tab)<-c("eigenvelues", "% variance","% cum variance")
 tab
-
+plot(pvecum, xlab="Principal Component", ylab="Proportion of Variance Explained", ylim=c(0,1),type='b')
 
 # Use Scree Diagram to select the components:
 plot(eigenvalues, type="b", main="Scree Diagram", xlab="Number of Component", ylab="Eigenvalues")
 abline(h=1, lwd=3, col="red")
 
-### We select 4 components 
-# Interpret the principal components selected by their coefficient vectors:
+#Select 4 components 
 eigen(corr)$vectors[,1:4]
 
 
@@ -71,7 +67,7 @@ comp<-cbind(comp,communality)
 comp
 
 
-# Calculate the scores for the selected components and graph them:
+### Calculate the scores for the selected components and graph them:
 bad_drivers.scale <- scale(bad_drivers, T, T)
 score <- bad_drivers.scale%*%autovec[,1:4]
 # normalized scores changed sign (non-normalized scores divided by 
