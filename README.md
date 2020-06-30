@@ -6,10 +6,13 @@ output:
 ---
 # Principal Components Analysis
 ## Abstract
-This contribution develops an analysis on the dataset 'bad-drivers.csv' (taken from github.com/fivethirtyeight/data) by running the Principal Components Analysis. In particular, the study is focused on the different steps in the computation of the principal componets.  
-1.How to choose Principal Components
-2.Proportion Variance Explained
-3.Thanks to this it is now possible to consider just three of the principal components, always keeping in mind that the goal is to lower the cross-validation risk estimate.
+This contribution develops an analysis on the dataset 'bad-drivers.csv' (taken from github.com/fivethirtyeight/data) by running the Principal Components Analysis. In particular, the keypoints of the study are the different steps in the computation of the principal componets with associated analysis:  
+1. Computation of eigenvalues and eigenvectors
+2. Definition of the correlation matrix
+3. Different methods to choose the principal components 
+4. Analysis of the communality
+5. Computation of scores and loadings.
+
 #Description of the dataset
 I chose the dataset 'bad-drivers.csv' (taken from github.com/fivethirtyeight/data), that considers data whose sources are: National Highway Traffic Safety Administration and National Association of Insurance Commissioners. This folder contains data behind the story 'Dear Mona, Which State Has The Worst Drivers?', where Mona Chalabi, a British data journalist answer some questions about drivers and car accidents in the USA. She says that historic data that could indicate where America's worst drivers are: the number of car crashes in each state (especially those where the driver was negligent in some way), how much insurance companies pay out, and how much insurance companies charge drivers. The reported variables are: 
 .	State (a specific country in the USA); 
@@ -60,6 +63,7 @@ The absolute values are between 0 and 1 and it is possible to get the following 
 -if both values tend to increase or decrease together the coefficient is positive, and the line that represents the correlation slopes upward, otherwise the coefficient is negative.
 In this case, most of the values have non-linear relationship. 
 
+## Choice of principal components
 Then, there is a very important step: the choice of the principal components.
 It canbe done in different ways, the first is the definition of the eigenvalues and eigenvectors.
 The  eigenvalues and eigenvectors of a correlation (or covariance) matrix represent the "core" of a PCA: the eigenvectors (principal components) represent the directions of the new feature space, whereas the eigenvalues determine their magnitude and, consequently explain the variance of the data along the new feature axes. 
@@ -68,7 +72,7 @@ The R function 'eigen()' outputs the eigenvalues and eigenvectors:
 ![](images/eigen.png)
 
 The eigenvector with the highest eigenvalues is then considered as principal components in most cases.In this case, the first four components are able to axplain at least one variable by themselves.
-However it is possible to base the choice of the principal components on the proportion of variance explained, which indicates how much of the variance in the data is not contained in the first few principal components. The total variance present in a dataset is defined as:
+However it is possible to base the choice of the principal components on the proportion of variance explained, which indicates how much of the variance in the data is not contained in the first few principal components. In other words, the proportion of variance explained helps in understanding the strenght of each component. The total variance present in a dataset is defined as:
 
 ![](images/totvar.png)
 
@@ -106,40 +110,56 @@ I built the matrix of the four components, obtained by multiplying the eigenvect
 
 | |    Comp1|    Comp2|    Comp3|    Comp4|
 |-|---------|---------|---------|---------|
-|a| -0.36802|  0.06011| -0.64651| -0.63619|
-|b| -0.18950|  0.55585| -0.08053| -0.07924|
-|c| -0.40110|  0.64062| -0.37847| -0.37242|
-|d| -0.18909|  0.43225|  0.59378|  0.58431|
-|e|  0.31822| -0.45291| -0.33426| -0.32892|
-|f|  0.79867|  0.43619| -0.04001| -0.03937|
-|g|  0.79160|  0.33085| -0.19504| -0.19192|
+|a| -0.36802|  0.06011| -0.64651|  0.40854|
+|b| -0.18950|  0.55585| -0.08053| -0.70435|
+|c| -0.40110|  0.64062| -0.37847| -0.02265|
+|d| -0.18909|  0.43225|  0.59378|  0.10513|
+|e|  0.31822| -0.45291| -0.33426| -0.55137|
+|f|  0.79867|  0.43619| -0.04001|  0.01373|
+|g|  0.79160|  0.33085| -0.19504|  0.24275|
 
 This table shows the correlations of the original variables with each of the four components. For example the variables 'f' and 'g' have a high correlation with the first component (79%), 'b' and 'c' have a relatively high correlation with the second one (respectively 55% and 64%).
-Another element that can be considered is the communality that tells how is the part of variance explained for each variable after the reduction.
+Another element that can be considered is the communality that tells how is the part of variance explained for each variable after the reduction and, consequently which is the loss that I have for each single variable. Mathematically, the communality is the sum of the squared component loadings based on how many components are chosen.
 Using four components, I get the following results:
 
 | |    Comp1|    Comp2|    Comp3|    Comp4| communality|
 |-|---------|---------|---------|---------|------------|
-|a| -0.36802|  0.06011| -0.64651| -0.63619|   0.9617648|
-|b| -0.18950|  0.55585| -0.08053| -0.07924|   0.3576435|
-|c| -0.40110|  0.64062| -0.37847| -0.37242|   0.8532114|
-|d| -0.18909|  0.43225|  0.59378|  0.58431|   0.9165880|
-|e|  0.31822| -0.45291| -0.33426| -0.32892|   0.5263096|
-|f|  0.79867|  0.43619| -0.04001| -0.03937|   0.8312863|
-|g|  0.79160|  0.33085| -0.19504| -0.19192|   0.8109662|
+|a| -0.36802|  0.06011| -0.64651|  0.40854|   0.7239320|
+|b| -0.18950|  0.55585| -0.08053| -0.70435|   0.8474735|
+|c| -0.40110|  0.64062| -0.37847| -0.02265|   0.7150278|
+|d| -0.18909|  0.43225|  0.59378|  0.10513|   0.5862221|
+|e|  0.31822| -0.45291| -0.33426| -0.55137|   0.7221301|
+|f|  0.79867|  0.43619| -0.04001|  0.01373|   0.8299248|
+|g|  0.79160|  0.33085| -0.19504|  0.24275|   0.8330604|
 
 In other words, I get:
--96% of the variance of 'a'(Number of drivers involved in fatal collisions per billion miles) explained,
--35% of the variance of 'b' (Percentage of drivers involved in fatal collisions who were speeding) explained,
--85% of the variance of 'c' (Percentage of drivers involved in fatal collisions who were alcohol impaired) explained,
--91% of the variance of 'd' (Percentage of drivers involved in fatal collisions who were not distracted) explained,
--52% of the variance of 'e' (Percentage of drivers involved in fatal collisions who had not been involved in any previous accidents) explained,
--83% of the variance of 'f' (Car insurance premiums) explained,
--81% of the variance of 'g' (	Losses incurred by insurance companies for collisions per insured driver) explained.
+-72% of the variance of 'a'(Number of drivers involved in fatal collisions per billion miles) explained,
+-84% of the variance of 'b' (Percentage of drivers involved in fatal collisions who were speeding) explained,
+-71% of the variance of 'c' (Percentage of drivers involved in fatal collisions who were alcohol impaired) explained,
+-58% of the variance of 'd' (Percentage of drivers involved in fatal collisions who were not distracted) explained,
+-72% of the variance of 'e' (Percentage of drivers involved in fatal collisions who had not been involved in any previous accidents) explained,
+-82% of the variance of 'f' (Car insurance premiums) explained,
+-83% of the variance of 'g' (	Losses incurred by insurance companies for collisions per insured driver) explained.
 
+## Scores and Loadings
+What can be done next is the computation of the scores for the selected components and the loadings. 
+To compute the scores, I started from the multiplication of the scale variables of the dataset 'bad_drivers' by the eigenvectors.
+It is possible to check which are the most influential variables and the relationships.
+The graph below, which reports the 51 States of the dataset, shows that the relationships are very weak:
+
+![](images/Rplot02.png)
+
+Another important graph is the Loading Plot:
+
+[](images/Rplot03.png)
+
+The distance from the origin conveys information. The further away from the plot origin a variable lies, the stronger the impact that variable has on the model. 
+
+## Conclusions
+In conclusion, the PCA is an exploratory approach, very useful when you want to build a low-dimensional representation of the dataset. As seen in the study, thanks to the definition of the eigenvelues and eigenvector and thanks to the computation of the proportion of variance explained, it is possible to define the principal componets. The proportion of variance explained helps in interpreting the data and the role of the principal components, in fact the goal is to understand how much of the original data is represented by the chosen components. Based on this, the following analysis give many descriptive information.Then the cumulative proprtion of variance explained, tells how much of variance for each component added to the variances of the previous ones is explained by the original variables. In this case the first four variables, whose eigenvalues are greater than 1, have a cumulative percentage of variance of 75%. The other important element is the communality that, as seen above, gives and idea of how much the original variables are explained by each new component. The results can be interpreted as good since the percentages are all above 70%, except for the variable 'd' (Percentage of drivers involved in fatal collisions who were not distracted) which has a percentage of 58% that is still acceptable.
 
 ```
-### principal component analysis ###
+#principal component analysis 
 bad_drivers <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/bad-drivers/bad-drivers.csv", sep = ",")
 head(bad_drivers)
 dir.create("data")
@@ -165,12 +185,11 @@ table <- round(cbind(mean, std),2)
 table
 
 ## PCA starting from correlation matrix
-# calculate matrix R:
 corr <- cor(bad_drivers)
 round(corr,3)
 
 
-# calculate eigenvalues and eigenvectors:
+# computation of eigenvalues and eigenvectors:
 eigen(corr)
 eigenvalues <- eigen(corr)$values
 eigenvectors <- eigen(corr)$vectors
@@ -185,7 +204,7 @@ colnames(tab)<-c("eigenvelues", "% variance","% cum variance")
 tab
 plot(pvecum, xlab="Principal Component", ylab="Proportion of Variance Explained", ylim=c(0,1),type='b')
 
-# Use Scree Diagram to select the components:
+#Scree Diagram to select the components:
 plot(eigenvalues, type="b", main="Scree Diagram", xlab="Number of Component", ylab="Eigenvalues")
 abline(h=1, lwd=3, col="red")
 
@@ -193,30 +212,26 @@ abline(h=1, lwd=3, col="red")
 eigen(corr)$vectors[,1:4]
 
 
-#Matrix of the components, obtained by multiplying the eigenvector by the root of the respective eigenvalue (if necessary we can change the sign for interpretative reasons)
-comp <- round(cbind(-eigen(rho)$vectors[,1]*sqrt(eigenvalues[1]),-eigen(rho)$vectors[,2]*sqrt(eigenvalues[2]),-eigen(rho)$vectors[,3]*sqrt(eigenvalues[3]),-eigen(rho)$vectors[,3]*sqrt(eigenvalues[4])),5)
+#Matrix of the components
+comp <- round(cbind(-eigen(corr)$vectors[,1]*sqrt(eigenvalues[1]),-eigen(corr)$vectors[,2]*sqrt(eigenvalues[2]),-eigen(corr)$vectors[,3]*sqrt(eigenvalues[3]),-eigen(corr)$vectors[,4]*sqrt(eigenvalues[4])),5)
 rownames(comp)<-row.names(table)
 colnames(comp)<-c("Comp1","Comp2","Comp3","Comp4")
 comp
 
-# The sum of the squares of the values of each row of the component 
-#matrix is the respective 'communality', 
-# The communality is the sum of the squared component loadings 
-#up to the number of components you extract.
+#communality
 communality<-comp[,1]^2+comp[,2]^2+comp[,3]^2+comp[,4]^2
 comp<-cbind(comp,communality)
 comp
 
 
-# Calculate the scores for the selected components and graph them:
+#scores
 bad_drivers.scale <- scale(bad_drivers, T, T)
-score <- bad_drivers.scale%*%autovec[,1:4]
-# normalized scores changed sign (non-normalized scores divided by 
-#square root of the respective eigenvalue)
-## score chart
-scorez<-round(cbind(-score[,1]/sqrt(eigenvalues[1]),-score[,2]/sqrt(eigenvalues[2]),-score[,3]/sqrt(eigenvalues[3]),-score[,4]/sqrt(eigenvalues[4])),4)
-plot(scorez, main="Scores plot")
-text(scorez, rownames(bad_drivers))
+score <- bad_drivers.scale%*%eigenvectors[,1:4]
+
+# score diagram
+scores<-round(cbind(-score[,1]/sqrt(eigenvalues[1]),-score[,2]/sqrt(eigenvalues[2]),-score[,3]/sqrt(eigenvalues[3]),-score[,4]/sqrt(eigenvalues[4])),4)
+plot(scores, main="Scores plot")
+text(scores, rownames(bad_drivers))
 abline(v=0,h=0,col="red")
 # Loadings plot
 plot(comp[,1:4], main="Loadings plot", xlim=range(-1,1))
